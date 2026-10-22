@@ -21,17 +21,30 @@ app.use(
 app.use(bodyParser.json());
 
 app.get('/', (_req, res) => {
-  res.json({ message: 'MERN API is running' });
+  const dbState = mongoose.connection.readyState;
+  const dbStatus =
+    dbState === 1 ? 'connected' : dbState === 2 ? 'connecting' : 'disconnected';
+  res.json({ message: 'MERN API is running', database: dbStatus });
 });
 
-mongoose
-    .connect(MONGOURL)
-    .then(() => {
-        console.log("DB Connected Successfully.");
-        app.listen(PORT, () => {
-            console.log(`Server is running on port: ${PORT}`);
-        });
-    })
-    .catch((error) => console.log(error));
+app.use('/api', route);
 
-app.use("/api",route);
+if (!MONGOURL) {
+  console.error(
+    'MONGO_URL is not set. Add it in Render → Environment (Atlas connection string).'
+  );
+} else {
+  mongoose
+    .connect(MONGOURL, { serverSelectionTimeoutMS: 10000 })
+    .then(() => console.log('DB Connected Successfully.'))
+    .catch((error) => {
+      console.error('MongoDB connection failed:', error.message);
+      console.error(
+        'Check Atlas Network Access (allow 0.0.0.0/0) and MONGO_URL user/password on Render.'
+      );
+    });
+}
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port: ${PORT}`);
+});
