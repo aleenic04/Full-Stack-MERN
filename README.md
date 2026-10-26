@@ -6,6 +6,8 @@ A full-stack user management application built using the MERN stack.
 
 This project provides a web interface for managing user records, with a React frontend, an Express and Node.js backend, and MongoDB for data storage.
 
+**Live Demo:** https://addandedit.vercel.app/
+
 ## Features
 
 - Display users
